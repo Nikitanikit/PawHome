@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In — PawHome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="site-navbar"></div>
+
+<div class="container" style="padding:64px 0 100px;">
+  <div class="form-card">
+    <h1 style="font-size:28px; text-align:center;">Welcome back</h1>
+    <p style="text-align:center; margin-bottom:26px;">Log in to manage your applications and favorites.</p>
+
+    <div class="alert alert-error" id="formError"></div>
+
+    <form id="loginForm" novalidate>
+      <div class="field" id="f-email">
+        <label for="email">Email</label>
+        <input type="email" id="email" autocomplete="email">
+      </div>
+      <div class="field" id="f-password">
+        <label for="password">Password</label>
+        <input type="password" id="password" autocomplete="current-password">
+      </div>
+      <div style="text-align:right; margin-bottom:18px;">
+        <a href="forgot-password.html" style="font-size:13.5px;">Forgot password?</a>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="submitBtn">Log in</button>
+    </form>
+
+    <p style="text-align:center; margin-top:18px;">New to PawHome? <a href="register.html">Create an account</a></p>
+    <p style="text-align:center; margin-top:6px;"><a href="admin/login.html">Admin login →</a></p>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="js/api.js"></script>
+<script src="js/layout.js"></script>
+<script>
+renderNavbar();
+if (Auth.isLoggedIn()) window.location.href = "dashboard.html";
+
+const form = document.getElementById("loginForm");
+const errorAlert = document.getElementById("formError");
+const submitBtn = document.getElementById("submitBtn");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  errorAlert.classList.remove("show");
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+  if (!email || !password){
+    errorAlert.textContent = "Please enter your email and password.";
+    errorAlert.classList.add("show");
+    return;
+  }
+  setLoading(submitBtn, true, "Logging in...");
+  try{
+    const data = await api.post("/auth/login", { email, password });
+    Auth.setSession(data.token, "user", data.user);
+    const redirect = new URLSearchParams(window.location.search).get("redirect") || "dashboard.html";
+    window.location.href = redirect;
+  }catch(err){
+    errorAlert.textContent = err.message;
+    errorAlert.classList.add("show");
+  }finally{
+    setLoading(submitBtn, false);
+  }
+});
+</script>
+</body>
+</html>

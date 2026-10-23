@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adoption Application — PawHome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .pet-strip{display:flex; align-items:center; gap:14px; background:#fff; border:1px solid var(--line); border-radius:var(--radius-md); padding:14px 18px; margin-bottom:26px;}
+  .pet-strip img{width:56px; height:56px; border-radius:var(--radius-sm); object-fit:cover;}
+</style>
+</head>
+<body>
+<div id="site-navbar"></div>
+
+<div class="container" style="padding:44px 0 100px;">
+  <h1 style="font-size:30px; text-align:center;">Adoption application</h1>
+  <p style="text-align:center; margin-bottom:6px;">Tell the shelter a bit about your home so they can confirm this is a good match.</p>
+
+  <div style="max-width:640px; margin:24px auto 0;">
+    <div id="petStrip"></div>
+
+    <div class="form-card wide" style="max-width:none; padding:32px;">
+      <div class="alert alert-error" id="formError"></div>
+      <div id="successView" style="display:none; text-align:center;">
+        <div style="font-size:44px;">🎉</div>
+        <h2 style="font-size:22px;">Your adoption application has been submitted successfully.</h2>
+        <p>Our team will review it and update your dashboard once a decision is made.</p>
+        <a href="dashboard.html" class="btn btn-primary" style="margin-top:10px;">Go to dashboard</a>
+      </div>
+
+      <form id="applyForm" novalidate>
+        <div class="field-grid-2">
+          <div class="field" id="f-full_name">
+            <label>Full name</label><input type="text" id="full_name">
+          </div>
+          <div class="field" id="f-email">
+            <label>Email</label><input type="email" id="email">
+          </div>
+        </div>
+        <div class="field-grid-2">
+          <div class="field" id="f-phone">
+            <label>Phone</label><input type="tel" id="phone">
+          </div>
+          <div class="field" id="f-family_members">
+            <label>Number of family members</label><input type="number" min="1" id="family_members">
+          </div>
+        </div>
+        <div class="field" id="f-address">
+          <label>Address</label><textarea id="address" rows="2"></textarea>
+        </div>
+        <div class="field" id="f-housing_type">
+          <label>Housing type</label>
+          <select id="housing_type">
+            <option value="">Select housing type</option>
+            <option>Own House</option>
+            <option>Rented Apartment</option>
+            <option>Apartment (Society)</option>
+            <option>Farm / Independent House</option>
+          </select>
+        </div>
+        <div class="field" id="f-previous_pet_experience">
+          <label>Previous pet experience</label>
+          <textarea id="previous_pet_experience" rows="2" placeholder="Have you owned pets before? Tell us briefly."></textarea>
+        </div>
+        <div class="field" id="f-reason_for_adoption">
+          <label>Reason for adoption</label>
+          <textarea id="reason_for_adoption" rows="2" placeholder="Why would you like to adopt this pet?"></textarea>
+        </div>
+        <div class="field" id="f-employment_info">
+          <label>Employment information</label>
+          <input type="text" id="employment_info" placeholder="e.g. Full-time software engineer, works from home 2 days/week">
+        </div>
+        <div class="field" id="f-agreement">
+          <label class="checkbox-row">
+            <input type="checkbox" id="agreement">
+            <span>I confirm the information above is accurate and I agree to the shelter's adoption terms and a follow-up home check if requested.</span>
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="submitBtn">Submit application</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="js/api.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/apply.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard — PawHome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .dash-head{padding:40px 0 0;}
+  .tabs{display:flex; gap:8px; border-bottom:1px solid var(--line); margin:24px 0 28px;}
+  .tab{padding:10px 6px; font-weight:600; color:var(--ink-soft); cursor:pointer; border-bottom:2px solid transparent;}
+  .tab.active{color:var(--sage-deep); border-color:var(--sage);}
+  .app-card{display:flex; gap:16px; background:#fff; border:1px solid var(--line); border-radius:var(--radius-md); padding:16px; margin-bottom:14px; align-items:center;}
+  .app-card img{width:64px; height:64px; border-radius:var(--radius-sm); object-fit:cover;}
+  .app-card .info{flex:1;}
+  .profile-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px; background:#fff; border:1px solid var(--line); border-radius:var(--radius-md); padding:24px;}
+  .profile-grid div span{display:block; font-size:12px; color:var(--ink-soft); text-transform:uppercase; margin-bottom:2px;}
+  @media (max-width:600px){.profile-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="site-navbar"></div>
+
+<div class="container dash-head">
+  <h1 style="font-size:32px;">My dashboard</h1>
+  <p id="welcomeMsg">Track your favorites and adoption applications here.</p>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="applications">My Applications</div>
+    <div class="tab" data-tab="favorites">Favorites</div>
+    <div class="tab" data-tab="profile">Profile</div>
+  </div>
+</div>
+
+<div class="container" style="padding-bottom:80px;">
+  <div id="applicationsTab"></div>
+  <div id="favoritesTab" style="display:none;"></div>
+  <div id="profileTab" style="display:none;"></div>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="js/api.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

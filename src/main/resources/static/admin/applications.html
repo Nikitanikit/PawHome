@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adoption Applications — PawHome Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+<style>
+  .detail-row{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0;}
+  .detail-row div span{display:block; font-size:12px; color:var(--ink-soft); text-transform:uppercase; margin-bottom:2px;}
+  @media (max-width:560px){.detail-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="admin-shell" id="adminShell"></div>
+<div class="modal-backdrop" id="detailModal"></div>
+
+<script src="../js/api.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+if (requireAdmin()){
+  renderAdminShell("applications", "Adoption Applications");
+  init();
+}
+
+function init(){
+  const content = document.getElementById("adminContent");
+  content.innerHTML = `
+    <div class="table-toolbar">
+      <select id="statusFilter">
+        <option value="">All statuses</option>
+        <option value="pending">Pending</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+      </select>
+    </div>
+    <div id="appsWrap"><div class="loading"><span class="spinner"></span> Loading applications...</div></div>`;
+  document.getElementById("statusFilter").addEventListener("change", loadApps);
+  loadApps();
+}
+
+async function loadApps(){
+  const wrap = document.getElementById("appsWrap");
+  const status = document.getElementById("statusFilter").value;
+  try{
+    const data = await api.get("/applications" + (status ? `?status=${status}` : ""));
+    if (data.applications.length === 0){
+      wrap.innerHTML = `<div class="empty-state"><div class="icon">📋</div><p>No applications found.</p></div>`;
+      return;
+    }
+    wrap.innerHTML = `
+      <div class="table-card">
+        <table>
+          <thead><tr><th>Pet</th><th>Applicant</th><th>Applied</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${data.applications.map(a => `
+              <tr>
+                <td style="display:flex; align-items:center; gap:10px;"><img class="thumb-sm" src="${a.pet_image}" alt=""> ${escapeHtml(a.pet_name)}</td>
+                <td>${escapeHtml(a.full_name)}<br><span style="color:var(--ink-soft); font-size:12.5px;">${escapeHtml(a.user_email)}</span></td>
+                <td>${escapeHtml((a.applied_at || "").split(" ")[0])}</td>
+                <td><span class="pill ${a.status}">${a.status}</span></td>
+                <td class="table-actions">
+                  <button class="btn btn-outline btn-sm view-btn" data-id="${a.id}">View</button>
+                  ${a.status === "pending" ? `
+                    <button class="btn btn-primary btn-sm approve-btn" data-id="${a.id}" data-pet="${escapeHtml(a.pet_name)}">Approve</button>
+                    <button class="btn btn-danger btn-sm reject-btn" data-id="${a.id}" data-pet="${escapeHtml(a.pet_name)}">Reject</button>
+                  ` : ""}
+                </td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>`;
+
+    document.querySelectorAll(".view-btn").forEach(b => b.addEventListener("click", () => viewDetail(b.dataset.id)));
+    document.querySelectorAll(".approve-btn").forEach(b => b.addEventListener("click", () => decide(b.dataset.id, "approve", b.dataset.pet)));
+    document.querySelectorAll(".reject-btn").forEach(b => b.addEventListener("click", () => decide(b.dataset.id, "reject", b.dataset.pet)));
+  }catch(err){
+    wrap.innerHTML = `<div class="empty-state"><p>${escapeHtml(err.message)}</p></div>`;
+  }
+}
+
+async function viewDetail(id){
+  try{
+    const { application: a } = await api.get(`/applications/${id}`);
+    const modal = document.getElementById("detailModal");
+    modal.classList.add("show");
+    modal.innerHTML = `
+      <div class="modal" style="max-width:560px;">
+        <h3>Application for ${escapeHtml(a.pet_name)}</h3>
+        <span class="pill ${a.status}">${a.status}</span>
+        <div class="detail-row">
+          <div><span>Full name</span><strong>${escapeHtml(a.full_name)}</strong></div>
+          <div><span>Email</span><strong>${escapeHtml(a.email)}</strong></div>
+          <div><span>Phone</span><strong>${escapeHtml(a.phone)}</strong></div>
+          <div><span>Family members</span><strong>${a.family_members}</strong></div>
+          <div style="grid-column:1/-1;"><span>Address</span><strong>${escapeHtml(a.address)}</strong></div>
+          <div><span>Housing type</span><strong>${escapeHtml(a.housing_type)}</strong></div>
+          <div><span>Employment</span><strong>${escapeHtml(a.employment_info)}</strong></div>
+          <div style="grid-column:1/-1;"><span>Previous pet experience</span><strong>${escapeHtml(a.previous_pet_experience)}</strong></div>
+          <div style="grid-column:1/-1;"><span>Reason for adoption</span><strong>${escapeHtml(a.reason_for_adoption)}</strong></div>
+          ${a.admin_note ? `<div style="grid-column:1/-1;"><span>Admin note</span><strong>${escapeHtml(a.admin_note)}</strong></div>` : ""}
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-outline btn-sm" id="closeModalBtn">Close</button>
+        </div>
+      </div>`;
+    document.getElementById("closeModalBtn").addEventListener("click", () => modal.classList.remove("show"));
+    modal.addEventListener("click", (e) => { if (e.target === modal) modal.classList.remove("show"); });
+  }catch(err){ toast(err.message, "error"); }
+}
+
+async function decide(id, action, petName){
+  const isApprove = action === "approve";
+  const ok = await confirmAction({
+    title: isApprove ? "Approve this application?" : "Reject this application?",
+    message: isApprove
+      ? `${petName} will be marked as adopted, and all other pending applications for this pet will be automatically rejected.`
+      : `This applicant will be notified that their application for ${petName} was not accepted.`,
+    confirmLabel: isApprove ? "Approve" : "Reject",
+    danger: !isApprove,
+  });
+  if (!ok) return;
+  try{
+    await api.put(`/applications/${id}/${action}`);
+    toast(isApprove ? "Application approved. Pet marked as adopted." : "Application rejected.", "success");
+    loadApps();
+  }catch(err){ toast(err.message, "error"); }
+}
+</script>
+</body>
+</html>

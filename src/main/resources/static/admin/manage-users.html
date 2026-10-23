@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Users — PawHome Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div class="admin-shell" id="adminShell"></div>
+
+<script src="../js/api.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+if (requireAdmin()){
+  renderAdminShell("users", "Manage Users");
+  loadUsers();
+}
+
+async function loadUsers(){
+  const content = document.getElementById("adminContent");
+  content.innerHTML = `<div class="loading"><span class="spinner"></span> Loading users...</div>`;
+  try{
+    const { users } = await api.get("/admin/users");
+    if (users.length === 0){
+      content.innerHTML = `<div class="empty-state"><div class="icon">👤</div><p>No registered users yet.</p></div>`;
+      return;
+    }
+    content.innerHTML = `
+      <div class="table-card">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Applications</th><th>Joined</th><th></th></tr></thead>
+          <tbody>
+            ${users.map(u => `
+              <tr>
+                <td>${escapeHtml(u.full_name)}</td>
+                <td>${escapeHtml(u.email)}</td>
+                <td>${escapeHtml(u.phone)}</td>
+                <td>${u.application_count}</td>
+                <td>${escapeHtml((u.created_at || "").split(" ")[0])}</td>
+                <td><button class="btn btn-danger btn-sm del-btn" data-id="${u.id}" data-name="${escapeHtml(u.full_name)}">Delete</button></td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>`;
+
+    document.querySelectorAll(".del-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const ok = await confirmAction({
+          title: "Remove this user?",
+          message: `This will permanently delete ${btn.dataset.name}'s account and their applications.`,
+          confirmLabel: "Delete"
+        });
+        if (!ok) return;
+        try{
+          await api.del(`/admin/users/${btn.dataset.id}`);
+          toast("User account removed.", "success");
+          loadUsers();
+        }catch(err){ toast(err.message, "error"); }
+      });
+    });
+  }catch(err){
+    content.innerHTML = `<div class="empty-state"><p>${escapeHtml(err.message)}</p></div>`;
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — PawHome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div class="admin-shell" id="adminShell"></div>
+
+<script src="../js/api.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+if (requireAdmin()){
+  renderAdminShell("dashboard", "Dashboard");
+  loadDashboard();
+}
+
+async function loadDashboard(){
+  const content = document.getElementById("adminContent");
+  content.innerHTML = `<div class="loading"><span class="spinner"></span> Loading stats...</div>`;
+  try{
+    const [stats, apps] = await Promise.all([
+      api.get("/admin/stats"),
+      api.get("/applications?status=pending"),
+    ]);
+
+    content.innerHTML = `
+      <div class="stat-grid">
+        <div class="stat-card"><span>Total pets</span><strong>${stats.total_pets}</strong></div>
+        <div class="stat-card"><span>Available now</span><strong>${stats.available}</strong></div>
+        <div class="stat-card"><span>Adopted</span><strong>${stats.adopted}</strong></div>
+        <div class="stat-card"><span>Registered users</span><strong>${stats.total_users}</strong></div>
+        <div class="stat-card"><span>Pending applications</span><strong>${stats.pending_apps}</strong></div>
+        <div class="stat-card"><span>Pets reserved (pending pickup)</span><strong>${stats.pending_pets}</strong></div>
+        <div class="stat-card"><span>Total adoption fees collected</span><strong>${formatMoney(stats.revenue)}</strong></div>
+      </div>
+
+      <div class="table-toolbar"><h3 style="margin:0; font-size:17px;">Latest pending applications</h3>
+        <a href="applications.html" class="btn btn-outline btn-sm">View all</a>
+      </div>
+      <div class="table-card">
+        <table>
+          <thead><tr><th>Pet</th><th>Applicant</th><th>Applied</th><th>Status</th></tr></thead>
+          <tbody>
+            ${apps.applications.slice(0, 6).map(a => `
+              <tr>
+                <td style="display:flex; align-items:center; gap:10px;"><img class="thumb-sm" src="${a.pet_image}" alt=""> ${escapeHtml(a.pet_name)}</td>
+                <td>${escapeHtml(a.full_name)}<br><span style="color:var(--ink-soft); font-size:12.5px;">${escapeHtml(a.user_email)}</span></td>
+                <td>${escapeHtml((a.applied_at || "").split(" ")[0])}</td>
+                <td><span class="pill ${a.status}">${a.status}</span></td>
+              </tr>`).join("") || `<tr><td colspan="4" style="text-align:center; color:var(--ink-soft); padding:30px;">No pending applications right now.</td></tr>`}
+          </tbody>
+        </table>
+      </div>`;
+  }catch(err){
+    content.innerHTML = `<div class="empty-state"><p>${escapeHtml(err.message)}</p></div>`;
+  }
+}
+</script>
+</body>
+</html>

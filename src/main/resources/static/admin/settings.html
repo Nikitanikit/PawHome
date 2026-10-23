@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — PawHome Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div class="admin-shell" id="adminShell"></div>
+
+<script src="../js/api.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+if (requireAdmin()){
+  renderAdminShell("settings", "Settings");
+  init();
+}
+
+function init(){
+  const content = document.getElementById("adminContent");
+  const admin = Auth.getUser();
+  content.innerHTML = `
+    <div class="form-card" style="padding:30px;">
+      <h3 style="font-size:17px;">Account</h3>
+      <p style="margin-bottom:20px;">Signed in as <strong>${escapeHtml(admin ? admin.username : "")}</strong></p>
+
+      <h3 style="font-size:17px;">Change password</h3>
+      <div class="alert alert-error" id="formError"></div>
+      <div class="alert alert-success" id="formSuccess"></div>
+      <form id="pwForm" novalidate>
+        <div class="field"><label>Current password</label><input type="password" id="current_password"></div>
+        <div class="field"><label>New password</label><input type="password" id="new_password"></div>
+        <button type="submit" class="btn btn-primary btn-block" id="submitBtn">Update password</button>
+      </form>
+    </div>`;
+
+  document.getElementById("pwForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const errorAlert = document.getElementById("formError");
+    const successAlert = document.getElementById("formSuccess");
+    errorAlert.classList.remove("show"); successAlert.classList.remove("show");
+
+    const current_password = document.getElementById("current_password").value;
+    const new_password = document.getElementById("new_password").value;
+    if (!current_password || new_password.length < 6){
+      errorAlert.textContent = "Enter your current password and a new password of at least 6 characters.";
+      errorAlert.classList.add("show");
+      return;
+    }
+    const submitBtn = document.getElementById("submitBtn");
+    setLoading(submitBtn, true, "Updating...");
+    try{
+      await api.put("/admin/settings/password", { current_password, new_password });
+      successAlert.textContent = "Password updated successfully.";
+      successAlert.classList.add("show");
+      document.getElementById("pwForm").reset();
+    }catch(err){
+      errorAlert.textContent = err.message;
+      errorAlert.classList.add("show");
+    }finally{
+      setLoading(submitBtn, false);
+    }
+  });
+}
+</script>
+</body>
+</html>

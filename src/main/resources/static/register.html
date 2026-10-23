@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — PawHome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="site-navbar"></div>
+
+<div class="container" style="padding:48px 0 80px;">
+  <div class="form-card">
+    <h1 style="font-size:28px; text-align:center;">Create your account</h1>
+    <p style="text-align:center; margin-bottom:26px;">Save favorites, apply for adoption and track your applications.</p>
+
+    <div class="alert alert-error" id="formError"></div>
+
+    <form id="registerForm" novalidate>
+      <div class="field" id="f-full_name">
+        <label for="full_name">Full name</label>
+        <input type="text" id="full_name" autocomplete="name">
+        <div class="error-msg">Please enter your full name.</div>
+      </div>
+      <div class="field" id="f-email">
+        <label for="email">Email</label>
+        <input type="email" id="email" autocomplete="email">
+        <div class="error-msg">Please enter a valid email address.</div>
+      </div>
+      <div class="field" id="f-phone">
+        <label for="phone">Phone number</label>
+        <input type="tel" id="phone" autocomplete="tel">
+        <div class="error-msg">Please enter your phone number.</div>
+      </div>
+      <div class="field" id="f-address">
+        <label for="address">Address</label>
+        <textarea id="address" rows="2"></textarea>
+        <div class="error-msg">Please enter your address.</div>
+      </div>
+      <div class="field-grid-2">
+        <div class="field" id="f-password">
+          <label for="password">Password</label>
+          <input type="password" id="password" autocomplete="new-password">
+          <div class="error-msg">Password must be at least 6 characters.</div>
+        </div>
+        <div class="field" id="f-confirm_password">
+          <label for="confirm_password">Confirm password</label>
+          <input type="password" id="confirm_password" autocomplete="new-password">
+          <div class="error-msg">Passwords do not match.</div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="submitBtn">Create account</button>
+    </form>
+
+    <p style="text-align:center; margin-top:18px;">Already have an account? <a href="login.html">Log in</a></p>
+  </div>
+</div>
+
+<div id="site-footer"></div>
+
+<script src="js/api.js"></script>
+<script src="js/layout.js"></script>
+<script>
+renderNavbar();
+if (Auth.isLoggedIn()) window.location.href = "dashboard.html";
+
+const form = document.getElementById("registerForm");
+const errorAlert = document.getElementById("formError");
+const submitBtn = document.getElementById("submitBtn");
+
+function setFieldError(id, hasError){
+  document.getElementById("f-" + id).classList.toggle("error", hasError);
+}
+
+function validate(){
+  const vals = {
+    full_name: document.getElementById("full_name").value.trim(),
+    email: document.getElementById("email").value.trim(),
+    phone: document.getElementById("phone").value.trim(),
+    address: document.getElementById("address").value.trim(),
+    password: document.getElementById("password").value,
+    confirm_password: document.getElementById("confirm_password").value,
+  };
+  let ok = true;
+  setFieldError("full_name", !vals.full_name); if (!vals.full_name) ok = false;
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(vals.email);
+  setFieldError("email", !emailOk); if (!emailOk) ok = false;
+  setFieldError("phone", !vals.phone); if (!vals.phone) ok = false;
+  setFieldError("address", !vals.address); if (!vals.address) ok = false;
+  setFieldError("password", vals.password.length < 6); if (vals.password.length < 6) ok = false;
+  setFieldError("confirm_password", vals.password !== vals.confirm_password);
+  if (vals.password !== vals.confirm_password) ok = false;
+  return { ok, vals };
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  errorAlert.classList.remove("show");
+  const { ok, vals } = validate();
+  if (!ok) return;
+
+  setLoading(submitBtn, true, "Creating account...");
+  try{
+    const data = await api.post("/auth/register", vals);
+    Auth.setSession(data.token, "user", data.user);
+    toast("Account created. Welcome to PawHome!", "success");
+    window.location.href = "dashboard.html";
+  }catch(err){
+    errorAlert.textContent = err.message;
+    errorAlert.classList.add("show");
+  }finally{
+    setLoading(submitBtn, false);
+  }
+});
+</script>
+</body>
+</html>

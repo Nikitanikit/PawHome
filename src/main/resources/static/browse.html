@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browse Pets — PawHome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .browse-head{padding:44px 0 8px;}
+  .filter-bar{
+    background:#fff; border:1px solid var(--line); border-radius:var(--radius-md);
+    padding:18px; display:grid; grid-template-columns:2fr 1fr 1fr 1fr auto; gap:12px; align-items:end;
+    margin-bottom:32px; box-shadow:var(--shadow-card);
+  }
+  .filter-bar .field{margin-bottom:0;}
+  .filter-bar label{font-size:12.5px; margin-bottom:5px;}
+  @media (max-width:900px){.filter-bar{grid-template-columns:1fr 1fr;}}
+  .result-count{color:var(--ink-soft); font-size:14px; margin-bottom:18px;}
+</style>
+</head>
+<body>
+<div id="site-navbar"></div>
+
+<div class="container browse-head">
+  <h1 style="font-size:36px;">Browse pets</h1>
+  <p>Search by name or breed, and filter by species, status or location.</p>
+</div>
+
+<div class="container">
+  <form class="filter-bar" id="filterForm">
+    <div class="field">
+      <label for="search">Search</label>
+      <input type="text" id="search" placeholder="Search by name or breed…">
+    </div>
+    <div class="field">
+      <label for="species">Species</label>
+      <select id="species"><option value="">All species</option></select>
+    </div>
+    <div class="field">
+      <label for="status">Status</label>
+      <select id="status">
+        <option value="">All statuses</option>
+        <option value="available">Available</option>
+        <option value="pending">Pending</option>
+        <option value="adopted">Adopted</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="location">Location</label>
+      <input type="text" id="location" placeholder="City">
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
+
+  <div class="result-count" id="resultCount"></div>
+  <div class="pet-grid" id="petGrid">
+    <div class="loading" style="grid-column:1/-1;"><span class="spinner"></span> Loading pets...</div>
+  </div>
+</div>
+
+<div style="height:60px;"></div>
+<div id="site-footer"></div>
+
+<script src="js/api.js"></script>
+<script src="js/layout.js"></script>
+<script src="js/browse.js"></script>
+</body>
+</html>

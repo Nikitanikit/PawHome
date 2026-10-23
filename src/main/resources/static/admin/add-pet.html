@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Pet — PawHome Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div class="admin-shell" id="adminShell"></div>
+
+<script src="../js/api.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+const petId = new URLSearchParams(window.location.search).get("id");
+
+if (requireAdmin()){
+  renderAdminShell("pets", petId ? "Edit Pet" : "Add New Pet");
+  init();
+}
+
+function fieldGroup(){
+  return `
+    <div class="form-card wide" style="max-width:none; padding:30px;">
+      <div class="alert alert-error" id="formError"></div>
+      <div class="alert alert-success" id="formSuccess"></div>
+      <form id="petForm" novalidate>
+        <div class="field-grid-2">
+          <div class="field" id="f-name"><label>Name</label><input type="text" id="name"></div>
+          <div class="field" id="f-species"><label>Species</label>
+            <select id="species">
+              <option value="">Select species</option>
+              <option>Dog</option><option>Cat</option><option>Rabbit</option><option>Bird</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-grid-2">
+          <div class="field" id="f-breed"><label>Breed</label><input type="text" id="breed"></div>
+          <div class="field" id="f-age_years"><label>Age (years)</label><input type="number" min="0" step="0.5" id="age_years"></div>
+        </div>
+        <div class="field-grid-2">
+          <div class="field" id="f-gender"><label>Gender</label>
+            <select id="gender"><option value="">Select</option><option>Male</option><option>Female</option></select>
+          </div>
+          <div class="field" id="f-color"><label>Color</label><input type="text" id="color"></div>
+        </div>
+        <div class="field-grid-2">
+          <div class="field" id="f-location"><label>Location</label><input type="text" id="location" placeholder="City, State"></div>
+          <div class="field" id="f-adoption_fee"><label>Adoption fee (₹)</label><input type="number" min="0" id="adoption_fee"></div>
+        </div>
+        <div class="field-grid-2">
+          <div class="field" id="f-vaccination_status"><label>Vaccination status</label>
+            <select id="vaccination_status">
+              <option value="">Select</option>
+              <option>Fully Vaccinated</option><option>Partially Vaccinated</option><option>Not Vaccinated</option><option>Not Applicable</option>
+            </select>
+          </div>
+          <div class="field" id="f-health_status"><label>Health status</label>
+            <select id="health_status">
+              <option value="">Select</option>
+              <option>Healthy</option><option>Under Treatment</option><option>Special Needs</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" id="f-image_url"><label>Image URL</label><input type="text" id="image_url" placeholder="https://…"></div>
+        <div class="field" id="f-description"><label>Description</label><textarea id="description" rows="3"></textarea></div>
+        <div class="field" id="f-personality"><label>Personality</label><textarea id="personality" rows="2"></textarea></div>
+        <div class="field" id="f-adoption_requirements"><label>Adoption requirements</label><textarea id="adoption_requirements" rows="2"></textarea></div>
+        ${petId ? `
+        <div class="field" id="f-status"><label>Status</label>
+          <select id="status"><option value="available">Available</option><option value="pending">Pending</option><option value="adopted">Adopted</option></select>
+        </div>` : ""}
+        <button type="submit" class="btn btn-primary btn-block" id="submitBtn">${petId ? "Save changes" : "Add pet"}</button>
+      </form>
+    </div>`;
+}
+
+async function init(){
+  const content = document.getElementById("adminContent");
+  content.innerHTML = fieldGroup();
+
+  if (petId){
+    try{
+      const { pet } = await api.get(`/pets/${petId}`);
+      Object.keys(pet).forEach(k => {
+        const el = document.getElementById(k);
+        if (el) el.value = pet[k];
+      });
+    }catch(err){
+      toast(err.message, "error");
+    }
+  }
+
+  document.getElementById("petForm").addEventListener("submit", onSubmit);
+}
+
+const FIELDS = ["name","species","breed","age_years","gender","color","location",
+  "vaccination_status","health_status","description","personality","adoption_requirements",
+  "adoption_fee","image_url"];
+
+async function onSubmit(e){
+  e.preventDefault();
+  const errorAlert = document.getElementById("formError");
+  const successAlert = document.getElementById("formSuccess");
+  errorAlert.classList.remove("show");
+  successAlert.classList.remove("show");
+
+  const payload = {};
+  let ok = true;
+  FIELDS.forEach(f => {
+    const el = document.getElementById(f);
+    const val = el.value.trim();
+    document.getElementById("f-" + f).classList.toggle("error", val === "");
+    if (val === "") ok = false;
+    payload[f] = val;
+  });
+  if (petId){
+    const statusEl = document.getElementById("status");
+    if (statusEl) payload.status = statusEl.value;
+  }
+
+  if (!ok){
+    errorAlert.textContent = "Please fill in all fields.";
+    errorAlert.classList.add("show");
+    return;
+  }
+
+  const submitBtn = document.getElementById("submitBtn");
+  setLoading(submitBtn, true, petId ? "Saving..." : "Adding...");
+  try{
+    if (petId){
+      await api.put(`/pets/${petId}`, payload);
+      toast("Pet updated successfully.", "success");
+    } else {
+      await api.post("/pets", payload);
+      toast("Pet added successfully.", "success");
+    }
+    window.location.href = "manage-pets.html";
+  }catch(err){
+    errorAlert.textContent = err.message;
+    errorAlert.classList.add("show");
+  }finally{
+    setLoading(submitBtn, false);
+  }
+}
+</script>
+</body>
+</html>

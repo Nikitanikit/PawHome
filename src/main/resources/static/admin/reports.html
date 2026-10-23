@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports — PawHome Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+<style>
+  .report-grid{display:grid; grid-template-columns:1fr 1fr; gap:20px;}
+  @media (max-width:900px){.report-grid{grid-template-columns:1fr;}}
+  .report-card{background:#fff; border:1px solid var(--line); border-radius:var(--radius-md); padding:22px;}
+  .bar-row{display:grid; grid-template-columns:110px 1fr 50px; align-items:center; gap:10px; margin-bottom:10px; font-size:13.5px;}
+  .bar-track{background:var(--cream-deep); border-radius:999px; height:12px; overflow:hidden;}
+  .bar-fill{height:100%; background:var(--sage); border-radius:999px;}
+  .bar-fill.clay{background:var(--clay);}
+  .bar-fill.gold{background:var(--gold);}
+</style>
+</head>
+<body>
+<div class="admin-shell" id="adminShell"></div>
+
+<script src="../js/api.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+if (requireAdmin()){
+  renderAdminShell("reports", "Reports");
+  loadReports();
+}
+
+function bars(rows, key, valueKey, colorClass){
+  const max = Math.max(...rows.map(r => r[valueKey]), 1);
+  return rows.map(r => `
+    <div class="bar-row">
+      <span>${escapeHtml(String(r[key]))}</span>
+      <div class="bar-track"><div class="bar-fill ${colorClass || ''}" style="width:${(r[valueKey] / max * 100).toFixed(0)}%"></div></div>
+      <strong>${r[valueKey]}</strong>
+    </div>`).join("");
+}
+
+async function loadReports(){
+  const content = document.getElementById("adminContent");
+  content.innerHTML = `<div class="loading"><span class="spinner"></span> Loading reports...</div>`;
+  try{
+    const r = await api.get("/admin/reports");
+    content.innerHTML = `
+      <div class="report-grid">
+        <div class="report-card">
+          <h3 style="font-size:16px;">Pets by species</h3>
+          ${r.by_species.length ? bars(r.by_species, "species", "total") : "<p>No data yet.</p>"}
+        </div>
+        <div class="report-card">
+          <h3 style="font-size:16px;">Pets by status</h3>
+          ${r.by_status.length ? bars(r.by_status, "status", "total", "clay") : "<p>No data yet.</p>"}
+        </div>
+        <div class="report-card">
+          <h3 style="font-size:16px;">Applications by status</h3>
+          ${r.apps_by_status.length ? bars(r.apps_by_status, "status", "total", "gold") : "<p>No applications yet.</p>"}
+        </div>
+        <div class="report-card">
+          <h3 style="font-size:16px;">Applications by month</h3>
+          ${r.applications_by_month.length ? bars(r.applications_by_month, "month", "total") : "<p>No applications yet.</p>"}
+        </div>
+        <div class="report-card" style="grid-column:1/-1;">
+          <h3 style="font-size:16px;">Adoption fee revenue by month</h3>
+          ${r.revenue_by_month.length ? r.revenue_by_month.map(row => `
+            <div class="bar-row" style="grid-template-columns:110px 1fr 100px;">
+              <span>${escapeHtml(row.month)}</span>
+              <div class="bar-track"><div class="bar-fill clay" style="width:${Math.min(100, row.total / (Math.max(...r.revenue_by_month.map(x=>x.total),1)) * 100)}%"></div></div>
+              <strong>${formatMoney(row.total)}</strong>
+            </div>`).join("") : "<p>No payments recorded yet.</p>"}
+        </div>
+      </div>`;
+  }catch(err){
+    content.innerHTML = `<div class="empty-state"><p>${escapeHtml(err.message)}</p></div>`;
+  }
+}
+</script>
+</body>
+</html>

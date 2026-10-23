@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Pets — PawHome Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+<div class="admin-shell" id="adminShell"></div>
+
+<script src="../js/api.js"></script>
+<script src="../js/admin.js"></script>
+<script>
+if (requireAdmin()){
+  renderAdminShell("pets", "Manage Pets");
+  init();
+}
+
+function init(){
+  const content = document.getElementById("adminContent");
+  content.innerHTML = `
+    <div class="table-toolbar">
+      <div style="display:flex; gap:10px;">
+        <input type="text" id="searchInput" placeholder="Search by name or breed…">
+        <select id="statusFilter">
+          <option value="">All statuses</option>
+          <option value="available">Available</option>
+          <option value="pending">Pending</option>
+          <option value="adopted">Adopted</option>
+        </select>
+      </div>
+      <a href="add-pet.html" class="btn btn-primary btn-sm">➕ Add new pet</a>
+    </div>
+    <div id="petsTableWrap"><div class="loading"><span class="spinner"></span> Loading pets...</div></div>`;
+
+  document.getElementById("searchInput").addEventListener("input", debounce(loadPets, 300));
+  document.getElementById("statusFilter").addEventListener("change", loadPets);
+  loadPets();
+}
+
+function debounce(fn, ms){
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
+async function loadPets(){
+  const wrap = document.getElementById("petsTableWrap");
+  const search = document.getElementById("searchInput").value.trim();
+  const status = document.getElementById("statusFilter").value;
+  const params = new URLSearchParams();
+  if (search) params.set("search", search);
+  if (status) params.set("status", status);
+
+  try{
+    const data = await api.get("/pets?" + params.toString());
+    if (data.pets.length === 0){
+      wrap.innerHTML = `<div class="empty-state"><div class="icon">🐾</div><p>No pets match your search.</p></div>`;
+      return;
+    }
+    wrap.innerHTML = `
+      <div class="table-card">
+        <table>
+          <thead><tr><th>Pet</th><th>Species / Breed</th><th>Location</th><th>Fee</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            ${data.pets.map(p => `
+              <tr>
+                <td style="display:flex; align-items:center; gap:10px;"><img class="thumb-sm" src="${p.image_url}" alt=""> ${escapeHtml(p.name)}</td>
+                <td>${escapeHtml(p.species)} · ${escapeHtml(p.breed)}</td>
+                <td>${escapeHtml(p.location)}</td>
+                <td>${formatMoney(p.adoption_fee)}</td>
+                <td><span class="pet-status ${p.status}" style="position:static; display:inline-block;">${p.status}</span></td>
+                <td class="table-actions">
+                  <a href="add-pet.html?id=${p.id}" class="btn btn-outline btn-sm">Edit</a>
+                  <button class="btn btn-danger btn-sm del-btn" data-id="${p.id}" data-name="${escapeHtml(p.name)}">Delete</button>
+                </td>
+              </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>`;
+
+    document.querySelectorAll(".del-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const ok = await confirmAction({
+          title: "Delete this pet listing?",
+          message: `This will permanently remove ${btn.dataset.name} from the platform. This cannot be undone.`,
+          confirmLabel: "Delete"
+        });
+        if (!ok) return;
+        try{
+          await api.del(`/pets/${btn.dataset.id}`);
+          toast(`${btn.dataset.name} was deleted.`, "success");
+          loadPets();
+        }catch(err){ toast(err.message, "error"); }
+      });
+    });
+  }catch(err){
+    wrap.innerHTML = `<div class="empty-state"><p>${escapeHtml(err.message)}</p></div>`;
+  }
+}
+</script>
+</body>
+</html>

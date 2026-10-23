@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Login — PawHome</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body{background:var(--sage-deep); min-height:100vh; display:flex; align-items:center; justify-content:center;}
+  .admin-login-card{background:#fff; border-radius:var(--radius-lg); padding:44px; max-width:420px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,.3);}
+</style>
+</head>
+<body>
+<div class="admin-login-card">
+  <div style="text-align:center; margin-bottom:22px;">
+    <div style="font-size:34px;">🐾</div>
+    <h1 style="font-size:24px; margin-top:8px;">PawHome Admin</h1>
+    <p>Restricted access for shelter staff only.</p>
+  </div>
+
+  <div class="alert alert-error" id="formError"></div>
+
+  <form id="adminLoginForm" novalidate>
+    <div class="field">
+      <label for="username">Username</label>
+      <input type="text" id="username" autocomplete="username">
+    </div>
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" autocomplete="current-password">
+    </div>
+    <button type="submit" class="btn btn-primary btn-block" id="submitBtn">Log in to admin panel</button>
+  </form>
+  <p style="text-align:center; margin-top:16px; font-size:13px;"><a href="../login.html">← Back to main site</a></p>
+</div>
+
+<script src="../js/api.js"></script>
+<script>
+if (Auth.isAdmin()) window.location.href = "dashboard.html";
+
+const form = document.getElementById("adminLoginForm");
+const errorAlert = document.getElementById("formError");
+const submitBtn = document.getElementById("submitBtn");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  errorAlert.classList.remove("show");
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value;
+  if (!username || !password){
+    errorAlert.textContent = "Please enter your username and password.";
+    errorAlert.classList.add("show");
+    return;
+  }
+  setLoading(submitBtn, true, "Logging in...");
+  try{
+    const data = await api.post("/auth/admin/login", { username, password });
+    Auth.setSession(data.token, "admin", data.admin);
+    window.location.href = "dashboard.html";
+  }catch(err){
+    errorAlert.textContent = err.message;
+    errorAlert.classList.add("show");
+  }finally{
+    setLoading(submitBtn, false);
+  }
+});
+</script>
+</body>
+</html>

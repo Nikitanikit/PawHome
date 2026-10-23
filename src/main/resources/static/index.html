@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PawHome — Give a Pet a Forever Home</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="site-navbar"></div>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="container">
+    <div>
+      <div class="hero-eyebrow">🐾 12 pets are waiting near you</div>
+      <h1>Give a pet a forever home.</h1>
+      <p class="lead">PawHome connects verified local shelters with families ready to adopt.
+      Browse real pets, apply online, and bring one home with a process that's simple,
+      transparent, and built around the animal's wellbeing.</p>
+      <div class="hero-actions">
+        <a href="register.html" class="btn btn-primary">Adopt Now</a>
+        <a href="browse.html" class="btn btn-outline">Browse Pets</a>
+      </div>
+      <div class="hero-stats">
+        <div><strong>120+</strong><span>Adoptions completed</span></div>
+        <div><strong>12</strong><span>Pets ready today</span></div>
+        <div><strong>18</strong><span>Partner shelters</span></div>
+      </div>
+    </div>
+    <div class="hero-art">
+      <div class="hero-grid">
+        <div class="tile"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Yellow_Labrador.jpg?width=700" alt="Golden Labrador looking up"></div>
+        <div class="tile"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Domestic_cat.jpg?width=500" alt="Black and white cat"></div>
+        <div class="tile"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Golden_Retriever_Puppy.JPG?width=500" alt="Golden Retriever puppy"></div>
+      </div>
+      <div class="hero-badge"><span class="dot"></span> Buddy just found his family 🎉</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURED PETS ============ -->
+<section class="section" id="featured">
+  <div class="container">
+    <div class="section-head">
+      <div class="badge-eyebrow">Meet them</div>
+      <h2>Featured pets looking for a home</h2>
+      <p>A few of the animals currently ready for adoption. Browse the full list to filter by species, breed or location.</p>
+    </div>
+    <div class="pet-grid" id="featuredGrid">
+      <div class="loading" style="grid-column:1/-1;"><span class="spinner"></span> Loading pets...</div>
+    </div>
+    <div style="text-align:center; margin-top:36px;">
+      <a href="browse.html" class="btn btn-outline">See all pets</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WHY CHOOSE US ============ -->
+<section class="section section-alt" id="about">
+  <div class="container">
+    <div class="section-head">
+      <div class="badge-eyebrow">Why PawHome</div>
+      <h2>Adoption you can trust, from search to signature.</h2>
+      <p>We built PawHome because too many adoption listings are outdated or unverified. Every pet and every shelter on this platform is checked by our team.</p>
+    </div>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="icon">✅</div>
+        <h3>Verified pets</h3>
+        <p>Every listing is confirmed with a partner shelter before it goes live, including health and vaccination records.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🧾</div>
+        <h3>Easy adoption</h3>
+        <p>Apply online in minutes with a guided form — no paperwork, no back-and-forth phone calls to get started.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">🏠</div>
+        <h3>Trusted shelters</h3>
+        <p>We only list animals from shelters that meet our welfare and record-keeping standards.</p>
+      </div>
+      <div class="feature-card">
+        <div class="icon">💬</div>
+        <h3>Pet care support</h3>
+        <p>After adoption, our team follows up with care guides and support so the transition home goes smoothly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="section-head">
+      <div class="badge-eyebrow">The process</div>
+      <h2>How adoption works</h2>
+      <p>From browsing to bringing your new companion home, here's what to expect.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="num">01</div>
+        <h3>Browse & choose</h3>
+        <p>Search available pets by species, breed or location and read their full profile.</p>
+      </div>
+      <div class="step">
+        <div class="num">02</div>
+        <h3>Reserve & pay the fee</h3>
+        <p>Add the pet to your cart and pay a small adoption fee that supports their care.</p>
+      </div>
+      <div class="step">
+        <div class="num">03</div>
+        <h3>Apply</h3>
+        <p>Fill out a short adoption application so our team can confirm it's a good fit.</p>
+      </div>
+      <div class="step">
+        <div class="num">04</div>
+        <h3>Bring them home</h3>
+        <p>Once approved, coordinate pickup with the shelter and welcome your new pet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head">
+      <div class="badge-eyebrow">Happy tails</div>
+      <h2>Stories from families who adopted</h2>
+    </div>
+    <div class="testimonial-grid">
+      <div class="testimonial">
+        <p>"The application was straightforward and the shelter team called us within a day. Rocky has been home for three months now."</p>
+        <div class="who">
+          <img src="https://i.pravatar.cc/100?img=32" alt="Adopter portrait">
+          <div><strong>Priya Sharma</strong><span>Adopted Rocky, Pune</span></div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <p>"I liked being able to see the vaccination status and health notes before applying. It made the decision so much easier."</p>
+        <div class="who">
+          <img src="https://i.pravatar.cc/100?img=51" alt="Adopter portrait">
+          <div><strong>Arjun Mehta</strong><span>Adopted Luna, Mumbai</span></div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <p>"The whole family got involved filling in the application. Seeing 'approved' on the dashboard felt like a small celebration."</p>
+        <div class="who">
+          <img src="https://i.pravatar.cc/100?img=47" alt="Adopter portrait">
+          <div><strong>Sneha Kulkarni</strong><span>Adopted Milo, Thane</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="section">
+  <div class="container">
+    <div class="cta-banner">
+      <h2>Your new best friend is waiting.</h2>
+      <p>Create a free account to save favorites, apply for adoption and track your application.</p>
+      <a href="register.html" class="btn btn-clay">Get started</a>
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="js/api.js"></script>
+<script src="js/layout.js"></script>
+<script>
+renderNavbar("home");
+
+async function loadFeatured(){
+  const grid = document.getElementById("featuredGrid");
+  try{
+    const data = await api.get("/pets?status=available");
+    const pets = data.pets.slice(0, 8);
+    if (pets.length === 0){
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">🐾</div><p>No pets available right now. Check back soon!</p></div>`;
+      return;
+    }
+    grid.innerHTML = pets.map(petCardHTML).join("");
+  }catch(err){
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><div class="icon">⚠️</div><p>${escapeHtml(err.message)}</p></div>`;
+  }
+}
+
+function petCardHTML(p){
+  return `
+  <div class="pet-card">
+    <a href="pet-details.html?id=${p.id}" class="thumb">
+      <img src="${p.image_url}" alt="${escapeHtml(p.name)}">
+      <span class="pet-status ${p.status}">${p.status}</span>
+    </a>
+    <div class="body">
+      <h3><a href="pet-details.html?id=${p.id}" style="color:inherit;">${escapeHtml(p.name)}</a></h3>
+      <div class="pet-meta">${escapeHtml(p.breed)} · ${p.age_years} yrs · ${escapeHtml(p.gender)}</div>
+      <div class="pet-fee">${formatMoney(p.adoption_fee)} adoption fee</div>
+      <a href="pet-details.html?id=${p.id}" class="btn btn-outline btn-sm btn-block">View Details</a>
+    </div>
+  </div>`;
+}
+
+loadFeatured();
+</script>
+</body>
+</html>
