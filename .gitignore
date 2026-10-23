@@ -10,3 +10,8 @@ target/
 *.ear
 .DS_Store
 Thumbs.db
+
+# Spring Boot / local DB files
+database/*.mv.db
+database/*.trace.db
+database/*.lock.db
